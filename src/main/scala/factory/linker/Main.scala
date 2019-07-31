@@ -3,9 +3,6 @@
  */
 package factory.linker
 
-import model.Test
-import redis.clients.jedis.StreamEntryID
-
 object Main {
   def main(args: Array[String]): Unit = {
     try {

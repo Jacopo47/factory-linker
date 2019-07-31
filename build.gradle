@@ -14,12 +14,12 @@ plugins {
 }
 
 allprojects {
+
     repositories {
         // Use jcenter for resolving your dependencies.
         // You can declare any Maven/Ivy/file repository here.
         jcenter()
     }
-
 }
 
 version '1.0.0'
@@ -27,8 +27,6 @@ sourceCompatibility = 1.8
 
 subprojects {
     version = '1.0'
-
-
 }
 
 dependencies {
