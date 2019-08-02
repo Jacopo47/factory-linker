@@ -1,13 +1,11 @@
-package controller
+package model.api
 
-
-import controller.Dispatcher.{PORT, TIMEOUT}
 import io.vertx.core.http.HttpHeaders
 import io.vertx.lang.scala.ScalaVerticle
 import io.vertx.scala.core.Vertx
 import io.vertx.scala.core.http.HttpServerOptions
 import io.vertx.scala.ext.web.{Router, RoutingContext}
-import model.api.{Error, Message, RouterResponse}
+import model.api.Dispatcher._
 import org.json4s.jackson.Serialization.write
 
 
@@ -37,7 +35,7 @@ object Dispatcher {
 }
 
 
-case class Dispatcher() extends ScalaVerticle {
+case class Dispatcher(routesHandler: Map[String, Router => Unit] = Map()) extends ScalaVerticle {
 
 
   override def start(): Unit = {
@@ -61,6 +59,14 @@ case class Dispatcher() extends ScalaVerticle {
       ctx.response().setStatusCode(404)
       ctx.response().putHeader(HttpHeaders.CONTENT_TYPE.toString, "application/json; charset=utf-8")
       ctx.response().end(write(err))
+    })
+
+
+    GET(router, "/", hello)
+    GET(router, "/error", responseError)
+
+    routesHandler.foreach(handler => {
+      handler._2(router)
     })
 
     vertx.createHttpServer(options)

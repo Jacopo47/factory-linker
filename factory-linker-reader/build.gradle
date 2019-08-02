@@ -4,12 +4,30 @@ plugins {
     id 'scala'
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs= ["src/main/res"]
+        }
+    }
+}
 
 dependencies {
+    compile project(':commons')
     // Use Scala 2.12 in our library project
     implementation 'org.scala-lang:scala-library:2.12.7'
-    
-    
+
+    implementation 'org.dom4j:dom4j:2.1.1'
+
+    implementation 'io.vertx:vertx-web-client-scala_2.12:3.6.2'
+
+    // https://mvnrepository.com/artifact/jaxen/jaxen
+    compile group: 'jaxen', name: 'jaxen', version: '1.2.0'
+
+
+    // JSON4S Json Library
+    compile group: 'org.json4s', name: 'json4s-native_2.12', version: '3.6.0'
+    compile group: 'org.json4s', name: 'json4s-jackson_2.12', version: '3.6.0'
 
     // Use Scalatest for testing our library
     testImplementation 'junit:junit:4.12'

@@ -1,8 +1,13 @@
-import controller.Dispatcher
-import io.vertx.scala.core.Vertx
+import controller.EventEmitter
+import model.logger.Log
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 object Main {
   def main(args: Array[String]): Unit = {
-    Vertx.vertx().deployVerticle(Dispatcher())
+    Await.ready(EventEmitter().start(), Duration.Inf)
+
+    Log.debug("Event-emitter shutdown!")
   }
 }

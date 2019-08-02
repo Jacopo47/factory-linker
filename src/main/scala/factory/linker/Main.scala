@@ -5,20 +5,6 @@ package factory.linker
 
 object Main {
   def main(args: Array[String]): Unit = {
-    try {
-      println(updater.GrettingFormatter.gretting("jacopo"))
 
-      val app = Test()
-      app.test()
-
-      app.rangeStream()
-
-      app.readStreamAsEventEmitter()
-      app.readStreamAsUpdater()
-    } finally {
-      println("finito")
-    }
-
-    while (true) {}
   }
 }

@@ -2,7 +2,6 @@ package model.dao
 
 import java.util.AbstractMap.SimpleImmutableEntry
 
-import model.{EVENT_EMITTER_GROUP, FACTORY_MAIN_STREAM_KEY, UPDATER_GROUP}
 import redis.clients.jedis.{Jedis, StreamEntry, StreamEntryID}
 
 import scala.collection.JavaConverters._

@@ -1,0 +1,14 @@
+{
+  "mtConnectEndpoints": [{
+    "endpoint": "smstestbed.nist.gov",
+    "machineName": "Mazak01",
+    "relativePath": "/vds/Mazak01/current",
+    "nodes": [{
+      "name": "Program",
+      "xpath": "//Events/Program"
+    }, {
+      "name": "ToolNumber",
+      "xpath": "//Events/ToolNumber"
+    }]
+  }]
+}
