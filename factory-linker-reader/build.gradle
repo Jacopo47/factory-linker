@@ -24,6 +24,7 @@ dependencies {
     // https://mvnrepository.com/artifact/jaxen/jaxen
     compile group: 'jaxen', name: 'jaxen', version: '1.2.0'
 
+    compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: '2.5.23'
 
     // JSON4S Json Library
     compile group: 'org.json4s', name: 'json4s-native_2.12', version: '3.6.0'

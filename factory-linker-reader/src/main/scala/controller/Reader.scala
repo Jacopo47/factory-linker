@@ -1,40 +1,53 @@
 package controller
 
-import controller.Reader.{MTCONNECT_AGENT_URL, PATH_BASE, PATH_CURRENT}
-import javax.xml.parsers.DocumentBuilder
-import model.{Config, MTConnectConfig}
+import model.Config
 import model.api.GetRequest
+import model.dao.ClientRedis
 import model.logger.Log
-import org.dom4j.{Document, DocumentHelper}
+import org.dom4j.{Document, DocumentHelper, Namespace}
+import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.duration._
 
 class Reader(config: Config) {
+
+
+  val system = akka.actor.ActorSystem("system")
+
+  system.scheduler.schedule(0 second, 5 second, () => read())
 
   def read(): Unit = {
     config.mtConnectEndpoints.foreach(endpoint => {
       GetRequest(endpoint.endpoint, endpoint.relativePath, {
         case Some(data) =>
-          Log.info(s"MACHINE: ${endpoint.machineName}")
           val document: Document = DocumentHelper.parseText(data)
 
-          endpoint.nodes.foreach(node => {
-            Log.info(s"Node: ${node.name} -> ${document.valueOf(node.xpath)}")
-          })
+          val namespace = new Namespace(endpoint.namespace.prefix, endpoint.namespace.uri)
+          document.getRootElement.add(namespace)
+
+          onDataFound(endpoint.machineName, endpoint.nodes.map(node => {
+            node.name -> (Option(document.selectSingleNode(node.xpath)) match {
+              case Some(value) => value.getText
+              case None => "No data found"
+            })
+          }).toMap)
         case None => Log.debug("No data found!")
       }, {
-        case error: Throwable => Log.error(s"Unexpected error, details: ${error.getMessage}")
-        case _ => Log.error("Error on retrieve data from MT CONNECT")
+        case error: Throwable => Log.warn(s"Unexpected error, details: ${error.getMessage}")
+        case _ => Log.warn("Error on retrieve data from MT CONNECT")
       })
     })
 
+  }
+
+  private def onDataFound(machineName: String, fields: Map[String, String]): Unit = {
+    val values = Map("machine" -> machineName) ++ fields
+
+    ClientRedis defaultAddToMainStream fields
   }
 }
 
 object Reader {
   def apply(config: Config): Reader = new Reader(config)
-
-  val MTCONNECT_AGENT_URL = "smstestbed.nist.gov"
-  val PATH_BASE = "/vds"
-    val PATH_CURRENT = "/current"
 }
 
 

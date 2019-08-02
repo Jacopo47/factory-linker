@@ -3,12 +3,16 @@
     "endpoint": "smstestbed.nist.gov",
     "machineName": "Mazak01",
     "relativePath": "/vds/Mazak01/current",
+    "namespace": {
+      "prefix": "m",
+      "uri" : "mtconnect.org:MTConnectStreams:1.3"
+    },
     "nodes": [{
       "name": "Program",
-      "xpath": "//Events/Program"
+      "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Program"
     }, {
       "name": "ToolNumber",
-      "xpath": "//Events/ToolNumber"
+      "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:ToolNumber"
     }]
   }]
 }
