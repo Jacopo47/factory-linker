@@ -46,7 +46,13 @@ object ClientRedis {
         }
       }
     }
+  }
 
+  def defaultAddToMainStream(fields: Map[String, String]): Unit = {
+    ClientRedis {
+      client =>
+        client.xadd(FACTORY_MAIN_STREAM_KEY, StreamEntryID.NEW_ENTRY, fields.asJava)
+    }
   }
 
   def readStreamAsGroup(stream: String, group: String, lastStreamID: StreamEntryID = StreamEntryID.UNRECEIVED_ENTRY): Option[(String, Seq[StreamEntry])] = {
