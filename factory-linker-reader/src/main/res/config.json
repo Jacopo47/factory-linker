@@ -1,18 +1,90 @@
 {
-  "mtConnectEndpoints": [{
-    "endpoint": "smstestbed.nist.gov",
-    "machineName": "Mazak01",
-    "relativePath": "/vds/Mazak01/current",
-    "namespace": {
-      "prefix": "m",
-      "uri" : "mtconnect.org:MTConnectStreams:1.3"
+  "mtConnectEndpoints": [
+    {
+      "endpoint": "smstestbed.nist.gov",
+      "machineName": "Hurco04",
+      "relativePath": "/vds/Hurco04/current",
+      "namespace": {
+        "prefix": "m",
+        "uri": "mtconnect.org:MTConnectStreams:1.3"
+      },
+      "nodes": [
+        {
+          "name": "Program",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Program"
+        },
+        {
+          "name": "PartCount",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:PartCount"
+        },
+        {
+          "name": "Execution",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Execution"
+        },
+        {
+          "name": "Block",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Block"
+        },
+        {
+          "name": "ToolNumber",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:ToolNumber"
+        },
+        {
+          "name": "ControllerMode",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:ControllerMode"
+        },
+        {
+          "name": "RotaryVelocity",
+          "xpath": "//m:ComponentStream[@component=\"Rotary\"]/m:Samples/m:RotaryVelocity"
+        },
+        {
+          "name": "RotaryTemperature",
+          "xpath": "//m:ComponentStream[@component=\"Rotary\"]/m:Samples/m:Temperature"
+        }
+      ]
     },
-    "nodes": [{
-      "name": "Program",
-      "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Program"
-    }, {
-      "name": "ToolNumber",
-      "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:ToolNumber"
-    }]
-  }]
+    {
+      "endpoint": "smstestbed.nist.gov",
+      "machineName": "Mazak01",
+      "relativePath": "/vds/Mazak01/current",
+      "namespace": {
+        "prefix": "m",
+        "uri": "mtconnect.org:MTConnectStreams:1.3"
+      },
+      "nodes": [
+        {
+          "name": "Program",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Program"
+        },
+        {
+          "name": "PartCount",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:PartCount"
+        },
+        {
+          "name": "Execution",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Execution"
+        },
+        {
+          "name": "Block",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:Block"
+        },
+        {
+          "name": "ToolNumber",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:ToolNumber"
+        },
+        {
+          "name": "ControllerMode",
+          "xpath": "//m:ComponentStream[@component=\"Path\"]/m:Events/m:ControllerMode"
+        },
+        {
+          "name": "RotaryVelocity",
+          "xpath": "//m:ComponentStream[@componentId=\"Mazak01-C\"]/m:Samples/m:RotaryVelocity"
+        },
+        {
+          "name": "RotaryTemperature",
+          "xpath": "//m:ComponentStream[@componentId=\"Mazak01-C\"]/m:Samples/m:Temperature"
+        }
+      ]
+    }
+  ]
 }

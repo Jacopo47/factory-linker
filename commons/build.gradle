@@ -25,6 +25,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.redisson/redisson
     compile group: 'org.redisson', name: 'redisson', version: '3.11.1'
+    
+    //Joda - for manage date-time
+    implementation 'joda-time:joda-time:2.10.3'
 
 
     // Use Scalatest for testing our library

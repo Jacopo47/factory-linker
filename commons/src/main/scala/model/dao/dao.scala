@@ -9,6 +9,8 @@ package object dao {
 
   def FACTORY_MAIN_STREAM_KEY = "factory-stream"
 
+
+
   def closeConnection(client: Jedis): Unit = client.quit()
 }
 

@@ -4,7 +4,9 @@ import model.Config
 import model.api.GetRequest
 import model.dao.ClientRedis
 import model.logger.Log
+import model.utilities.NULL_DATA
 import org.dom4j.{Document, DocumentHelper, Namespace}
+
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.duration._
 
@@ -13,7 +15,7 @@ class Reader(config: Config) {
 
   val system = akka.actor.ActorSystem("system")
 
-  system.scheduler.schedule(0 second, 5 second, () => read())
+  system.scheduler.schedule(0 second, 60 second, () => read())
 
   def read(): Unit = {
     config.mtConnectEndpoints.foreach(endpoint => {
@@ -27,7 +29,7 @@ class Reader(config: Config) {
           onDataFound(endpoint.machineName, endpoint.nodes.map(node => {
             node.name -> (Option(document.selectSingleNode(node.xpath)) match {
               case Some(value) => value.getText
-              case None => "No data found"
+              case None => NULL_DATA
             })
           }).toMap)
         case None => Log.debug("No data found!")
@@ -42,7 +44,7 @@ class Reader(config: Config) {
   private def onDataFound(machineName: String, fields: Map[String, String]): Unit = {
     val values = Map("machine" -> machineName) ++ fields
 
-    ClientRedis defaultAddToMainStream fields
+    ClientRedis defaultAddToMainStream values
   }
 }
 
