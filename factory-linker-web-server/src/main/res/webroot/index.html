@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Line Chart</title>
+    <title>Factory Report</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <style>
@@ -34,6 +34,8 @@
 <div class="hardware container"></div>
 
 <div class="execution container"></div>
+
+<div class="program container"></div>
 
 <script>
 
@@ -168,6 +170,59 @@
                 window.myLine = new Chart(ctx, config);
             })
         });
+
+
+        $.get("/programData", function (data) {
+            data.machines.forEach(function (machine) {
+                var config = {
+                    type: 'bar',
+                    data: {
+                        labels: machine.program.map(function (value) { return value.programName }),
+                        datasets: [{
+                            label: 'Programs',
+                            backgroundColor: window.chartColors.green,
+                            data: machine.program.map(function (value) { return value.valuesAsPieces }),
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: machine.machine + " Programs Info"
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    min: 0,
+                                    stepSize: 1
+                                }
+                            }],
+                            xAxes: [{
+                                display: false
+                            }]
+                        }
+                    }
+                };
+
+                var div = document.createElement('div');
+                div.classList.add('chart-container');
+
+                var canvas = document.createElement('canvas');
+                div.appendChild(canvas);
+
+                var container = document.querySelector('.program');
+                container.appendChild(div);
+
+                var ctx = canvas.getContext('2d');
+
+                window.myLine = new Chart(ctx, config);
+            })
+        });
+
     };
 
 

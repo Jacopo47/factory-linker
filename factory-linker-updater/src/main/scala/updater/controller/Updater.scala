@@ -1,24 +1,27 @@
-package controller
+package updater.controller
 
-import model.dao.ClientRedis.readStreamAsGroup
-import model.dao.{ClientRedis, EVENT_EMITTER_GROUP, FACTORY_MAIN_STREAM_KEY, FactoryData}
+import io.socket.client.IO
+import model.dao._
 import model.logger.Log
-import model.utilities.UNAVAILABLE
+import model.utilities._
+import org.json.JSONObject
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-case class EventEmitter() {
+case class Updater() {
 
 
   ClientRedis.initialRedisEnvironmentConfiguration()
 
+  private val socket = IO.socket("http://localhost")
 
   private def onStreamEntry(entry: FactoryData): Unit = {
-    if (entry.machineName.equalsIgnoreCase(UNAVAILABLE)) {
-      Log.warn(s"Machine: ${entry.machineName} triggered alarm!! Check as soon as possible!!")
-      // Aggiungere update tramite socket.io
-    }
+    val obj = new JSONObject()
+    obj.put("temperature", entry.partCount)
+    obj.put("velocity", entry.partCount)
+
+    socket.emit("hardware-data-update", obj)
   }
 
 
@@ -26,7 +29,7 @@ case class EventEmitter() {
     Future {
       while (true) {
         try {
-          readStreamAsGroup(FACTORY_MAIN_STREAM_KEY, EVENT_EMITTER_GROUP) match {
+          ClientRedis.readStreamAsGroup(FACTORY_MAIN_STREAM_KEY, EVENT_EMITTER_GROUP) match {
             case Some(data) =>
               data._2.map(e => FactoryData(e)).foreach(onStreamEntry)
             case None =>
