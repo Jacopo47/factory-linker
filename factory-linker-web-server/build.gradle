@@ -4,10 +4,34 @@ plugins {
     id 'scala'
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs= ["src/main/res"]
+        }
+    }
+}
+
 
 dependencies {
+    compile project(':commons')
     // Use Scala 2.12 in our library project
     implementation 'org.scala-lang:scala-library:2.12.7'
+
+
+
+    //Support to Vertx libraries.
+    implementation 'io.vertx:vertx-lang-scala_2.12:3.6.2'
+    implementation 'io.vertx:vertx-web-scala_2.12:3.6.2'
+    implementation 'io.vertx:vertx-web-client-scala_2.12:3.6.2'
+
+    // JSON4S Json Library
+    compile group: 'org.json4s', name: 'json4s-native_2.12', version: '3.6.0'
+    compile group: 'org.json4s', name: 'json4s-jackson_2.12', version: '3.6.0'
+
+    //Joda - for manage date-time
+    implementation 'joda-time:joda-time:2.10.3'
+
 
     // Use Scalatest for testing our library
     testImplementation 'junit:junit:4.12'

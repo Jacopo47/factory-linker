@@ -3,8 +3,8 @@ package controller
 import model.dao.ClientRedis.readStreamAsGroup
 import model.dao.{ClientRedis, EVENT_EMITTER_GROUP, FACTORY_MAIN_STREAM_KEY, FactoryData}
 import model.logger.Log
+import model.utilities.UNAVAILABLE
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
@@ -15,8 +15,10 @@ case class EventEmitter() {
 
 
   private def onStreamEntry(entry: FactoryData): Unit = {
-    println("\n\n ================================ \n")
-    entry.toString
+    if (entry.machineName.equalsIgnoreCase(UNAVAILABLE)) {
+      Log.warn(s"Machine: ${entry.machineName} triggered alarm!! Check as soon as possible!!")
+      // Aggiungere update tramite socket.io
+    }
   }
 
 

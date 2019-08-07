@@ -3,12 +3,15 @@ package model.dao
 import model.dao.ControllerMode.ControllerMode
 import model.dao.EmergencyStopState.EmergencyStopState
 import model.dao.ExecutionState.ExecutionState
+import model.utilities.{NULL_DATA, UNAVAILABLE}
 import org.joda.time.DateTime
 import redis.clients.jedis.StreamEntry
 
 import scala.collection.JavaConverters._
 
-class FactoryData(datetimeSource: DateTime, partCount: Long, controllerMode: ControllerMode, toolNumber: Double, machineName: String, block: String, rotaryVelocity: Double, rotaryTemperature: Double, execution: ExecutionState, program: String, emergencyStop: EmergencyStopState) {
+class FactoryData(val datetimeSource: DateTime, val partCount: Long, controllerMode: ControllerMode, toolNumber: Double, val machineName: String, block: String, rotaryVelocity: Double, rotaryTemperature: Double, val execution: ExecutionState, val program: String, val emergencyStop: EmergencyStopState) {
+
+  def getHardwareData = HardwareData(datetimeSource.toString("HH:mm"), rotaryVelocity, rotaryTemperature)
 
   override def toString: String = "SourceTime: " + datetimeSource + "\n" +
     "MACHINE -> " + machineName + "\n" +
@@ -23,11 +26,13 @@ class FactoryData(datetimeSource: DateTime, partCount: Long, controllerMode: Con
     "EmergencyStop: " + emergencyStop
 }
 
+case class HardwareData(time: String, rotaryVelocity: Double, temperature: Double)
+
 object FactoryData {
   val PART_COUNT = "PartCount"
   val CONTROLLER_MODE = "ControllerMode"
   val TOOL_NUMBER = "ToolNumber"
-  val MACHINE_NAME = "MachineName"
+  val MACHINE_NAME = "machine"
   val BLOCK = "Block"
   val PROGRAM = "Program"
   val EXECUTION = "Execution"
@@ -37,21 +42,33 @@ object FactoryData {
 
   def apply(entry: StreamEntry): FactoryData = {
     val datetime = new DateTime(entry.getID.getTime)
-    val fields = entry.getFields.asScala
+    val fields = entry.getFields.asScala.toMap
 
-    //TODO gestire casi in cui si ha NO_DATA_FOUND
-    val partCount = fields(PART_COUNT).toLong
-    val controllerMode = ControllerMode(fields.getOrElse(CONTROLLER_MODE, ControllerMode.UNAVAILABLE.asString))
-    val toolNumber: Double = fields(TOOL_NUMBER).toDouble
-    val machineName = fields(MACHINE_NAME)
-    val block = fields(BLOCK)
-    val program = fields(PROGRAM)
-    val rotaryVelocity = fields(ROTARY_VELOCITY).toDouble
-    val rotaryTemperature = fields(ROTARY_TEMPERATURE).toDouble
-    val executionState = ExecutionState(fields.getOrElse(EXECUTION, ExecutionState.UNAVAILABLE.asString))
-    val emergencyStop: EmergencyStopState = EmergencyStopState(fields.getOrElse(EMERGENCY_STOP, EmergencyStopState.UNAVAILABLE.asString))
+    val partCount = fields.dataOrElse(PART_COUNT, "0", checkUnavailable = true).toLong
+    val controllerMode = ControllerMode(fields.dataOrElse(CONTROLLER_MODE, ControllerMode.UNAVAILABLE.asString))
+    val toolNumber: Double = fields.dataOrElse(TOOL_NUMBER, "0", checkUnavailable = true).toDouble
+    val machineName = fields.dataOrElse(MACHINE_NAME, UNAVAILABLE)
+    val block = fields.dataOrElse(BLOCK, UNAVAILABLE)
+    val program = fields.dataOrElse(PROGRAM, UNAVAILABLE)
+    val rotaryVelocity = fields.dataOrElse(ROTARY_VELOCITY, "0", checkUnavailable = true).toDouble
+    val rotaryTemperature = fields.dataOrElse(ROTARY_TEMPERATURE, "0", checkUnavailable = true).toDouble
+    val executionState = ExecutionState(fields.dataOrElse(EXECUTION, ExecutionState.UNAVAILABLE.asString))
+    val emergencyStop: EmergencyStopState = EmergencyStopState(fields.dataOrElse(EMERGENCY_STOP, EmergencyStopState.UNAVAILABLE.asString))
 
     new FactoryData(datetime, partCount, controllerMode, toolNumber, machineName, block, rotaryVelocity, rotaryTemperature, executionState, program, emergencyStop)
+  }
+
+  private implicit class fromMapOrElse(map: Map[String, String]) {
+
+    def dataOrElse (field: String, alternative: String, checkUnavailable: Boolean = false): String = {
+      val value = map.getOrElse(field, alternative)
+
+      if (value.equalsIgnoreCase(NULL_DATA)) return alternative
+
+      if (checkUnavailable && value.equalsIgnoreCase(UNAVAILABLE)) return alternative
+
+      value
+    }
   }
 }
 

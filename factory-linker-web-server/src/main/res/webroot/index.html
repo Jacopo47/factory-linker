@@ -6,86 +6,169 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <style>
-        canvas{
+        canvas {
             -moz-user-select: none;
             -webkit-user-select: none;
             -ms-user-select: none;
+        }
+
+        .chart-container {
+            width: 500px;
+            margin-left: 40px;
+            margin-right: 40px;
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 80%;
         }
     </style>
 </head>
 
 <body>
-<div style="width:75%;">
-    <canvas id="canvas"></canvas>
-</div>
-<br>
-<br>
-<button id="randomizeData">Randomize Data</button>
-<button id="addDataset">Add Dataset</button>
-<button id="removeDataset">Remove Dataset</button>
-<button id="addData">Add Data</button>
-<button id="removeData">Remove Data</button>
+
+<div class="hardware container"></div>
+
+<div class="execution container"></div>
+
 <script>
 
-    window.onload = function() {
-        $.get("/hardwareData", function (data) {
-            var machine = data[0];
-            var config = {
-                type: 'line',
-                data: {
-                    labels: machine.times,
-                    datasets: [{
-                        label: 'Velocity',
-                        backgroundColor: window.chartColors.red,
-                        borderColor: window.chartColors.red,
-                        data: machine.velocity,
-                        fill: false
-                    }, {
-                        label: 'Temperature',
-                        fill: false,
-                        backgroundColor: window.chartColors.blue,
-                        borderColor: window.chartColors.blue,
-                        data: machine.temperature
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    title: {
-                        display: true,
-                        text: machine.machine
-                    },
-                    tooltips: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    hover: {
-                        mode: 'nearest',
-                        intersect: true
-                    },
-                    scales: {
-                        xAxes: [{
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Time'
-                            }
-                        }],
-                        yAxes: [{
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Value'
-                            }
-                        }]
-                    }
-                }
-            };
-
-            var ctx = document.getElementById('canvas').getContext('2d');
-            window.myLine = new Chart(ctx, config);
-        });
+    window.chartColors = {
+        red: 'rgb(255, 99, 132)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
+        green: 'rgb(75, 192, 192)',
+        blue: 'rgb(54, 162, 235)',
+        purple: 'rgb(153, 102, 255)',
+        grey: 'rgb(201, 203, 207)'
     };
 
+    var colors =[
+        window.chartColors.red,
+        window.chartColors.orange,
+        window.chartColors.yellow,
+        window.chartColors.green,
+        window.chartColors.blue
+    ];
+
+    window.onload = function () {
+        $.get("/hardwareData", function (data) {
+            data.machines.forEach(function (machine) {
+                var config = {
+                    type: 'line',
+                    data: {
+                        labels: machine.times,
+                        datasets: [{
+                            label: 'Velocity',
+                            backgroundColor: window.chartColors.red,
+                            borderColor: window.chartColors.red,
+                            data: machine.velocity,
+                            fill: false
+                        }, {
+                            label: 'Temperature',
+                            fill: false,
+                            backgroundColor: window.chartColors.blue,
+                            borderColor: window.chartColors.blue,
+                            data: machine.temperatures
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        title: {
+                            display: true,
+                            text: machine.machine + " - Hardware info"
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        hover: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Time'
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Value'
+                                }
+                            }]
+                        }
+                    }
+                };
+
+                var div = document.createElement('div');
+                div.classList.add('chart-container');
+
+                var canvas = document.createElement('canvas');
+                div.appendChild(canvas);
+
+                var container = document.querySelector('.hardware');
+                container.appendChild(div);
+
+                var ctx = canvas.getContext('2d');
+
+                window.myLine = new Chart(ctx, config);
+            })
+        });
+
+
+        $.get("/executionData", function (data) {
+            data.machines.forEach(function (machine) {
+                var config = {
+                    type: 'doughnut',
+                    data: {
+                        labels: machine.states,
+                        datasets: [{
+                            label: machine.machine,
+                            backgroundColor: colors,
+                            data: machine.values,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: machine.machine + ' Execution info (values as minutes)'
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                };
+
+                var div = document.createElement('div');
+                div.classList.add('chart-container');
+
+                var canvas = document.createElement('canvas');
+                div.appendChild(canvas);
+
+                var container = document.querySelector('.hardware');
+                container.appendChild(div);
+
+                var ctx = canvas.getContext('2d');
+
+                window.myLine = new Chart(ctx, config);
+            })
+        });
+    };
 
 
 </script>

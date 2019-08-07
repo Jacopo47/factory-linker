@@ -1,11 +1,13 @@
 package model.api
 
-import io.vertx.core.http.HttpHeaders
+import io.vertx.core.http.{HttpHeaders, HttpMethod}
 import io.vertx.lang.scala.ScalaVerticle
 import io.vertx.scala.core.Vertx
 import io.vertx.scala.core.http.HttpServerOptions
+import io.vertx.scala.ext.web.handler.StaticHandler
 import io.vertx.scala.ext.web.{Router, RoutingContext}
 import model.api.Dispatcher._
+import model.logger.Log
 import org.json4s.jackson.Serialization.write
 
 
@@ -35,7 +37,7 @@ object Dispatcher {
 }
 
 
-case class Dispatcher(routesHandler: Map[String, Router => Unit] = Map()) extends ScalaVerticle {
+case class Dispatcher(routesHandler: Map[(String, HttpMethod), (RoutingContext, RouterResponse) => Unit] = Map()) extends ScalaVerticle {
 
 
   override def start(): Unit = {
@@ -53,20 +55,24 @@ case class Dispatcher(routesHandler: Map[String, Router => Unit] = Map()) extend
 
     if (System.getenv("PORT") != null) port = System.getenv("PORT").toInt
 
+    router.route().handler(StaticHandler.create())
+
+
+    GET(router, "/", hello)
+    GET(router, "/error", responseError)
+
+    routesHandler.foreach(handler => handler._1._2 match {
+      case HttpMethod.GET => GET(router, handler._1._1, handler._2)
+      case HttpMethod.POST => POST(router, handler._1._1, handler._2)
+      case _ => Log.warn("Impossible to create api for path: " + handler._1._1 + ". Method: " + handler._1._2 + " not supported.")
+    })
+
     router.route().handler(ctx => {
       val err = Error(Some(s"Error 404 not found"))
 
       ctx.response().setStatusCode(404)
       ctx.response().putHeader(HttpHeaders.CONTENT_TYPE.toString, "application/json; charset=utf-8")
       ctx.response().end(write(err))
-    })
-
-
-    GET(router, "/", hello)
-    GET(router, "/error", responseError)
-
-    routesHandler.foreach(handler => {
-      handler._2(router)
     })
 
     vertx.createHttpServer(options)
