@@ -1,27 +1,36 @@
-package updater.controller
+package updater
 
-import io.socket.client.IO
+import javax.websocket.server.ServerEndpoint
+import javax.websocket.{OnOpen, Session}
 import model.dao._
 import model.logger.Log
-import model.utilities._
 import org.json.JSONObject
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-case class Updater() {
-
-
+@ServerEndpoint("hardware")
+class Updater {
   ClientRedis.initialRedisEnvironmentConfiguration()
 
-  private val socket = IO.socket("http://localhost")
+  var session: Option[Session] = None
+
+  @OnOpen
+  private def onOpen(session: Session) {
+    this.session = Some(session)
+  }
 
   private def onStreamEntry(entry: FactoryData): Unit = {
     val obj = new JSONObject()
     obj.put("temperature", entry.partCount)
     obj.put("velocity", entry.partCount)
 
-    socket.emit("hardware-data-update", obj)
+    if (session.isDefined) {
+      session.get.getBasicRemote.sendText(obj.toString)
+      Log.debug("Updater has send data!")
+    } else {
+      Log.warn("Cannot send data from updater because websocket session not defined")
+    }
   }
 
 
@@ -43,4 +52,8 @@ case class Updater() {
     }
   }
 
+}
+
+object Updater {
+  def apply(): Updater = new Updater()
 }

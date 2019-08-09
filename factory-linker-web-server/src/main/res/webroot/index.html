@@ -5,6 +5,7 @@
     <title>Factory Report</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <style>
         canvas {
             -moz-user-select: none;
@@ -49,7 +50,7 @@
         grey: 'rgb(201, 203, 207)'
     };
 
-    var colors =[
+    var colors = [
         window.chartColors.red,
         window.chartColors.orange,
         window.chartColors.yellow,
@@ -177,11 +178,15 @@
                 var config = {
                     type: 'bar',
                     data: {
-                        labels: machine.program.map(function (value) { return value.programName }),
+                        labels: machine.program.map(function (value) {
+                            return value.programName
+                        }),
                         datasets: [{
                             label: 'Programs',
                             backgroundColor: window.chartColors.green,
-                            data: machine.program.map(function (value) { return value.valuesAsPieces }),
+                            data: machine.program.map(function (value) {
+                                return value.valuesAsPieces
+                            }),
                             fill: false
                         }]
                     },
@@ -225,7 +230,15 @@
 
     };
 
+    var host = document.location.host;
+    var pathname = document.location.pathname;
 
+    var webSocket = new WebSocket("ws://" + host + pathname + "/hardware");
+
+    webSocket.onopen = function (ev) { console.log("Siamo connessi!" + ev) }
+    webSocket.onmessage = function(message) {
+        console.log(message);
+    }
 </script>
 </body>
 
