@@ -10,11 +10,12 @@ dependencies {
     // Use Scala 2.12 in our library project
     implementation 'org.scala-lang:scala-library:2.12.7'
 
-    // https://mvnrepository.com/artifact/io.socket/socket.io-client
-    compile group: 'io.socket', name: 'socket.io-client', version: '1.0.0'
+    // https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio
+    compile group: 'com.corundumstudio.socketio', name: 'netty-socketio', version: '1.7.17'
 
-    compile group: 'javax.websocket', name: 'javax.websocket-api', version: '1.1'
-
+    // JSON4S Json Library
+    compile group: 'org.json4s', name: 'json4s-native_2.12', version: '3.6.0'
+    compile group: 'org.json4s', name: 'json4s-jackson_2.12', version: '3.6.0'
 
     // Use Scalatest for testing our library
     testImplementation 'junit:junit:4.12'

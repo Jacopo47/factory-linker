@@ -230,15 +230,12 @@
 
     };
 
-    var host = document.location.host;
-    var pathname = document.location.pathname;
+    var socket = io.connect("http://localhost:9092");
 
-    var webSocket = new WebSocket("ws://" + host + pathname + "/hardware");
+    socket.on('hardware-data-update', function(data) {
+        console.log(JSON.parse(data))
+    });
 
-    webSocket.onopen = function (ev) { console.log("Siamo connessi!" + ev) }
-    webSocket.onmessage = function(message) {
-        console.log(message);
-    }
 </script>
 </body>
 

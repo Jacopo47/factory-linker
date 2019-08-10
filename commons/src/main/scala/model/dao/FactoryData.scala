@@ -9,7 +9,7 @@ import redis.clients.jedis.StreamEntry
 
 import scala.collection.JavaConverters._
 
-class FactoryData(val datetimeSource: DateTime, val partCount: Long, controllerMode: ControllerMode, toolNumber: Double, val machineName: String, block: String, rotaryVelocity: Double, rotaryTemperature: Double, val execution: ExecutionState, val program: String, val emergencyStop: EmergencyStopState) {
+class FactoryData(val datetimeSource: DateTime, val partCount: Long, controllerMode: ControllerMode, toolNumber: Double, val machineName: String, block: String, val rotaryVelocity: Double, val rotaryTemperature: Double, val execution: ExecutionState, val program: String, val emergencyStop: EmergencyStopState) {
 
   def getHardwareData = HardwareData(datetimeSource.toString("HH:mm"), rotaryVelocity, rotaryTemperature)
 

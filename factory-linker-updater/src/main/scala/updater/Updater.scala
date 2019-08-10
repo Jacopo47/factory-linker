@@ -1,40 +1,34 @@
 package updater
 
-import javax.websocket.server.ServerEndpoint
-import javax.websocket.{OnOpen, Session}
 import model.dao._
 import model.logger.Log
-import org.json.JSONObject
+import java.io.IOException
+
+import com.corundumstudio.socketio.{Configuration, SocketIOServer}
+import model.api.Error
+import org.json4s.DefaultFormats
+import org.json4s.jackson.Serialization.write
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-@ServerEndpoint("hardware")
-class Updater {
+class Updater(server: SocketIOServer) {
+
+  implicit val formats: DefaultFormats.type = DefaultFormats
+
   ClientRedis.initialRedisEnvironmentConfiguration()
 
-  var session: Option[Session] = None
-
-  @OnOpen
-  private def onOpen(session: Session) {
-    this.session = Some(session)
-  }
 
   private def onStreamEntry(entry: FactoryData): Unit = {
-    val obj = new JSONObject()
-    obj.put("temperature", entry.partCount)
-    obj.put("velocity", entry.partCount)
+    val temperature = entry.rotaryTemperature
+    val velocity = entry.rotaryVelocity
 
-    if (session.isDefined) {
-      session.get.getBasicRemote.sendText(obj.toString)
-      Log.debug("Updater has send data!")
-    } else {
-      Log.warn("Cannot send data from updater because websocket session not defined")
-    }
+    server.getBroadcastOperations.sendEvent("hardware-data-update", write(HardwareDataMessageUpdate(velocity, temperature)))
   }
 
 
   def start(): Future[Unit] = {
+    Log.debug("Updater is running...")
     Future {
       while (true) {
         try {
@@ -54,6 +48,8 @@ class Updater {
 
 }
 
+case class HardwareDataMessageUpdate(velocity: Double, temperature: Double)
+
 object Updater {
-  def apply(): Updater = new Updater()
+  def apply(server: SocketIOServer): Updater = new Updater(server)
 }
